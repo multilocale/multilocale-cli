@@ -16,7 +16,7 @@ function sortObject(o) {
     }, {})
 }
 
-function makeDownloadCommand() {
+function downloadCommand() {
   const command = new commander.Command('download')
   command.option('--email [email]', 'email of user')
   command.option('--password [password]', 'password of user')
@@ -111,4 +111,4 @@ function makeDownloadCommand() {
   return command
 }
 
-export default makeDownloadCommand
+export default downloadCommand

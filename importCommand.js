@@ -3,36 +3,15 @@ import fs from 'fs'
 import path from 'path'
 import { promisify } from 'util'
 import commander from 'commander'
+import inquirer from 'inquirer'
 import { toJson } from 'xml2json'
+import getProjects from '@multilocale/multilocale-js-client/getProjects.js'
 import rehydrateSession from './session/rehydrateSession.js'
 import isLoggedInSession from './session/isLoggedInSession.js'
+import getAndroidManifest from './getAndroidManifest.js'
+import getMultilocaleJson from './getMultilocaleJson.js'
+import isAndroid from './isAndroid.js'
 import login from './login.js'
-
-async function getFiles(dir) {
-  const readdir = promisify(fs.readdir)
-  const stat = promisify(fs.stat)
-  const subdirs = await readdir(dir)
-  const files = await Promise.all(
-    subdirs.map(async subdir => {
-      const resource = path.resolve(dir, subdir)
-      return (await stat(resource)).isDirectory()
-        ? getFiles(resource)
-        : resource
-    }),
-  )
-  return files.reduce((a, f) => a.concat(f), [])
-}
-
-function getAndroidManifest(files) {
-  files = files.filter(file => !file.includes('/build/'))
-  files = files.filter(file => file.endsWith('AndroidManifest.xml'))
-
-  return files[0]
-}
-
-function isAndroid(files) {
-  return !!getAndroidManifest(files)
-}
 
 function importCommand() {
   const command = new commander.Command('import')
@@ -45,13 +24,8 @@ function importCommand() {
       await login()
     }
 
-    let files = await getFiles('.')
-    files = files
-      .map(file => file.replace(path.resolve('.'), ''))
-      .filter(file => !file.startsWith('/.'))
-
-    if (isAndroid(files)) {
-      let androidManifestPath = getAndroidManifest(files)
+    if (await isAndroid()) {
+      let androidManifestPath = await getAndroidManifest()
       console.log({ androidManifestPath })
       let stringsXmlPath = path.resolve(
         androidManifestPath.replace(
@@ -82,6 +56,39 @@ function importCommand() {
       )
 
       console.log(`Found ${translatablesImported.length} translatables`)
+
+      let projectId
+
+      let multilocaleJson = await getMultilocaleJson() // let multilocaleJson = await getMultilocaleJson()
+      console.log({ multilocaleJson })
+
+      projectId = multilocaleJson?.projectId
+
+      if (!projectId) {
+        let projects = await getProjects()
+
+        if (projects.length === 0) {
+          throw new Error(
+            'There are no projects. Create one first at https://app.multilocale.com/projects/new',
+          )
+        } else if (projects.length === 1) {
+          projectId = projects[0]._id
+        } else {
+          let answers = await inquirer.prompt([
+            {
+              type: 'list',
+              name: 'projectId',
+              message: 'Which projects?',
+              choices: projects.map(project => ({
+                name: project.name,
+                value: project._id,
+              })),
+            },
+          ])
+
+          console.log(answers)
+        }
+      }
     }
   })
 

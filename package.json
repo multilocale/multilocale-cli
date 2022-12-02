@@ -1,0 +1,36 @@
+{
+  "name": "multilocale",
+  "version": "0.0.1",
+  "description": "multilocale cli to download translation files from multilocale.com",
+  "main": "index.js",
+  "private": false,
+  "type": "module",
+  "scripts": {},
+  "keywords": [
+    "multilocale",
+    "multi-language",
+    "multilingual",
+    "i18n",
+    "translate",
+    "react-intl"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/multilocale/multilocale-react.git"
+  },
+  "author": "Multilocale",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/multilocale/multilocale-react/issues"
+  },
+  "homepage": "https://github.com/multilocale/multilocale-react",
+  "bin": {
+    "multilocale": "./index.js"
+  },
+  "dependencies": {
+    "@multilocale/multilocale-js-client": "0.0.5",
+    "commander": "8.3.0",
+    "fs-extra": "10.1.0",
+    "inquirer": "9.1.4"
+  }
+}

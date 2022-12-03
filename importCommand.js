@@ -5,7 +5,10 @@ import { promisify } from 'util'
 import commander from 'commander'
 import inquirer from 'inquirer'
 import { toJson } from 'xml2json'
+import addTranslatables from '@multilocale/multilocale-js-client/addTranslatables.js'
+import getProject from '@multilocale/multilocale-js-client/getProject.js'
 import getProjects from '@multilocale/multilocale-js-client/getProjects.js'
+import uuid from '@multilocale/multilocale-js-client/uuid.js'
 import rehydrateSession from './session/rehydrateSession.js'
 import isLoggedInSession from './session/isLoggedInSession.js'
 import getAndroidManifest from './getAndroidManifest.js'
@@ -45,13 +48,18 @@ function importCommand() {
       let stringsJson = JSON.parse(toJson(stringsXml))
 
       console.log(stringsJson)
-      let locale = 'en'
+      let language = 'en'
 
       let translatablesImported = stringsJson.resources.string.map(
         ({ name, $t }) => ({
+          _id: uuid(),
           key: name,
           value: $t,
-          locale,
+          language,
+          creationTime: new Date().toISOString(),
+          lastEditTime: new Date().toISOString(),
+          googleTranslate: false,
+          imported: true,
         }),
       )
 
@@ -74,21 +82,41 @@ function importCommand() {
         } else if (projects.length === 1) {
           projectId = projects[0]._id
         } else {
+          let choices = projects
+            .map(project => ({
+              name: project.name,
+              value: project._id,
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name))
+
           let answers = await inquirer.prompt([
             {
               type: 'list',
               name: 'projectId',
               message: 'Which projects?',
-              choices: projects.map(project => ({
-                name: project.name,
-                value: project._id,
-              })),
+              choices,
             },
           ])
 
-          console.log(answers)
+          projectId = answers.projectId
         }
       }
+
+      let project = await getProject(projectId)
+
+      translatablesImported = translatablesImported.map(translatable => ({
+        ...translatable,
+        organizationId: project.organizationId,
+        projects: [project.name],
+      }))
+
+      console.log({ translatablesImported })
+
+      await addTranslatables(translatablesImported)
+
+      console.log(
+        `Added ${translatablesImported.length} translatables: https://app.multilocale.com/projects/${projectId}`,
+      )
     }
   })
 

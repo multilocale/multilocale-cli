@@ -28,7 +28,7 @@
     "multilocale": "./index.js"
   },
   "dependencies": {
-    "@multilocale/multilocale-js-client": "0.0.5",
+    "@multilocale/multilocale-js-client": "^0.0.7",
     "commander": "8.3.0",
     "fs-extra": "10.1.0",
     "inquirer": "9.1.4",

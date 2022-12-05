@@ -1,26 +1,19 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
-import fs from 'fs'
+import fs from 'fs-extra'
 import path from 'path'
-import { promisify } from 'util'
 
-async function getFiles_(dir) {
-  const readdir = promisify(fs.readdir)
-  const stat = promisify(fs.stat)
-  const subdirs = await readdir(dir)
-  const files = await Promise.all(
-    subdirs.map(async subdir => {
-      const resource = path.resolve(dir, subdir)
-      return (await stat(resource)).isDirectory()
-        ? getFiles(resource)
-        : resource
-    }),
-  )
+function getFiles_(dir) {
+  const subdirs = fs.readdirSync(dir)
+  const files = subdirs.map(subdir => {
+    const resource = path.resolve(dir, subdir)
+    return fs.statSync(resource).isDirectory() ? getFiles(resource) : resource
+  })
   return files.reduce((a, f) => a.concat(f), [])
 }
 
-export default async function getFiles(dir) {
+export default function getFiles(dir) {
   dir = dir || '.'
-  let files = await getFiles_(dir)
+  let files = getFiles_(dir)
 
   files = files
     .map(file => file.replace(path.resolve('.'), ''))

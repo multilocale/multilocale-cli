@@ -1,11 +1,10 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
-import fs from 'fs'
-import { promisify } from 'util'
+import fs from 'fs-extra'
 import getFiles from './getFiles.js'
 
-export default async function getMultilocaleJson() {
+export default function getMultilocaleJson() {
   let multilocaleJson
-  let files = await getFiles()
+  let files = getFiles()
   files = files.filter(file => !file.includes('/build/'))
   files = files.filter(file => file.endsWith('multilocale.json'))
 
@@ -16,7 +15,7 @@ export default async function getMultilocaleJson() {
       multilocaleJsonPath = multilocaleJsonPath.slice(1)
     }
 
-    multilocaleJson = await promisify(fs.readFile)(multilocaleJsonPath, 'utf8')
+    multilocaleJson = fs.readFileSync(multilocaleJsonPath, 'utf8')
     multilocaleJson = multilocaleJson || '{}'
     multilocaleJson = JSON.parse(multilocaleJson)
   }

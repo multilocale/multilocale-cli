@@ -2,8 +2,8 @@
 
 import getFiles from './getFiles.js'
 
-export default async function getAndroidManifest() {
-  let files = await getFiles()
+export default function getAndroidManifest() {
+  let files = getFiles()
   files = files.filter(file => !file.includes('/build/'))
   files = files.filter(file => file.endsWith('AndroidManifest.xml'))
 

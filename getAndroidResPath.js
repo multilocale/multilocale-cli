@@ -2,8 +2,8 @@
 import path from 'path'
 import getAndroidManifest from './getAndroidManifest.js'
 
-export default async function getAndroidResPath() {
-  let androidManifestPath = await getAndroidManifest()
+export default function getAndroidResPath() {
+  let androidManifestPath = getAndroidManifest()
   // console.log({ androidManifestPath })
   let resPath = path.resolve(
     androidManifestPath.replace('AndroidManifest.xml', 'res'),

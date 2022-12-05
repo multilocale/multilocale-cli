@@ -11,7 +11,7 @@ import getProjects from '@multilocale/multilocale-js-client/getProjects.js'
 import uuid from '@multilocale/multilocale-js-client/uuid.js'
 import rehydrateSession from './session/rehydrateSession.js'
 import isLoggedInSession from './session/isLoggedInSession.js'
-import getAndroidManifest from './getAndroidManifest.js'
+import getAndroidResPath from './getAndroidResPath.js'
 import getMultilocaleJson from './getMultilocaleJson.js'
 import isAndroid from './isAndroid.js'
 import login from './login.js'
@@ -28,19 +28,10 @@ function importCommand() {
     }
 
     if (await isAndroid()) {
-      let androidManifestPath = await getAndroidManifest()
-      console.log({ androidManifestPath })
-      let stringsXmlPath = path.resolve(
-        androidManifestPath.replace(
-          'AndroidManifest.xml',
-          'res/values/strings.xml',
-        ),
-      )
+      console.log('Android project detected')
 
-      if (stringsXmlPath.startsWith('/')) {
-        stringsXmlPath = stringsXmlPath.slice(1)
-      }
-
+      let androidResPath = await getAndroidResPath()
+      let stringsXmlPath = path.resolve(androidResPath, 'values/strings.xml')
       let stringsXml = await promisify(fs.readFile)(stringsXmlPath, 'utf8')
 
       console.log({ stringsXml })

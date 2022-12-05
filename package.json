@@ -33,6 +33,7 @@
     "fs-extra": "10.1.0",
     "inquirer": "9.1.4",
     "node-localstorage": "^2.2.1",
+    "xml-formatter": "^2.6.1",
     "xml2json": "^0.12.0"
   }
 }

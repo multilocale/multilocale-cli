@@ -2,14 +2,16 @@
 import inquirer from 'inquirer'
 import getProjectHttp from '@multilocale/multilocale-js-client/getProject.js'
 import getProjects from '@multilocale/multilocale-js-client/getProjects.js'
-import getMultilocaleJson from './getMultilocaleJson.js'
+import getConfig from './getConfig.js'
+import setConfig from './setConfig.js'
 
 export default async function getProject(projectIdOrName) {
   let project
 
+  let config = getConfig()
+
   if (!projectIdOrName) {
-    let multilocaleJson = getMultilocaleJson()
-    projectIdOrName = multilocaleJson?.projectId
+    projectIdOrName = config?.projectId
   }
 
   if (!projectIdOrName) {
@@ -41,6 +43,13 @@ export default async function getProject(projectIdOrName) {
 
       projectIdOrName = answers.projectId
       project = projects.find(project => project._id === projectIdOrName)
+    }
+
+    if (project && !config) {
+      setConfig({
+        projectId: project._id,
+      })
+      console.log('created multilocale.json with default projectId')
     }
   }
 

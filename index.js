@@ -5,10 +5,11 @@ import downloadCommand from './downloadCommand.js'
 import importCommand from './importCommand.js'
 import loginCommand from './loginCommand.js'
 import logoutCommand from './logoutCommand.js'
+import packageJson from './package.json' assert { type: 'json' }
 
 program
   .description('manage translatables')
-  .version('0.0.1')
+  .version(packageJson.version)
   .addCommand(downloadCommand())
   .addCommand(importCommand())
   .addCommand(loginCommand())

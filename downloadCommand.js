@@ -2,8 +2,6 @@
 import commander from 'commander'
 import fs from 'fs-extra'
 import path from 'path'
-import { toXml } from 'xml2json'
-import prettifyXml from 'xml-formatter'
 import getTranslatables from '@multilocale/multilocale-js-client/getTranslatables.js'
 import rehydrateSession from './session/rehydrateSession.js'
 import isLoggedInSession from './session/isLoggedInSession.js'
@@ -67,11 +65,20 @@ function downloadCommand() {
           let language = languages[l]
           let key2value = sortObject(language2key2value[language])
           let keys = Object.keys(key2value)
-          const stringsXml = toXml({
-            resources: {
-              string: keys.map(key => ({ name: key, $t: key2value[key] })),
-            },
-          })
+          const stringsXml =
+            '/* DO NOT EDIT MANUALLY */\n' +
+            `/* Edit at https://app.multilocale.com/projects/${project._id} */\n` +
+            '/* Download translation files with https://github.com/multilocale/multilocale-cli */\n' +
+            '<?xml version="1.0" encoding="utf-8"?>\n' +
+            '<resources>\n' +
+            keys.reduce((string, key) => {
+              let value = key2value[key] || ''
+
+              string += `<string name="${key}">${value}</string>\n`
+
+              return string
+            }, '') +
+            '</resources>\n'
 
           let folderPath =
             language === 'en'
@@ -87,7 +94,7 @@ function downloadCommand() {
 
           // console.log({ stringsXmlPath })
 
-          let stringXmlPretty = prettifyXml(stringsXml)
+          let stringXmlPretty = stringsXml
 
           // console.log({ stringXmlPretty })
 

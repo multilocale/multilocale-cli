@@ -1,6 +1,6 @@
 {
   "name": "multilocale",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "multilocale cli to download translation files from multilocale.com",
   "main": "index.js",
   "private": false,

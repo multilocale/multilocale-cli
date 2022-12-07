@@ -47,6 +47,7 @@ export default async function getProject(projectIdOrName) {
 
     if (project && !config) {
       setConfig({
+        organizationId: project.organizationId,
         projectId: project._id,
       })
       console.log('created multilocale.json with default projectId')

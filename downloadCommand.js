@@ -117,35 +117,58 @@ function downloadCommand() {
           },
           {},
         )
-        // console.log('language2key2value', language2key2value)
-        let languages = Object.keys(language2key2value).sort()
-        fs.mkdirsSync(path.resolve('./translations'))
-        let indexJS = ''
-        languages.forEach(language => {
-          indexJS += `import ${language} from './${language}.json'\n`
+        
+        let { locales, paths } = project
+
+        if (!paths) {
+          paths = ['translations/%lang%.json']
+        }
+
+        paths.forEach(path_ => {
+
+          if (path_.includes('%lang%')) {
+            locales.forEach(language => {
+
+              let phrasesJsonPath = path.resolve(path_.replace('%lang%', language))
+              let key2value = sortObject(language2key2value[language])
+              
+              fs.mkdirSync(path.dirname(phrasesJsonPath), { recursive: true });
+              fs.writeFileSync(
+                phrasesJsonPath,
+                JSON.stringify(key2value, null, 2) + '\n',
+              )
+              console.log(
+                `${language}: ${phrasesJsonPath.replace(path.resolve('.'), '')}`,
+              )
+
+            })
+          } else {
+            console.log(`Path ${path_} does not include %lang%`)
+          }
+
         })
-        indexJS += '\nexport default {\n'
-        languages.forEach(language => {
-          indexJS += `  ${language},\n`
-        })
-        indexJS += '}\n'
-        fs.writeFileSync(path.resolve('./translations/index.js'), indexJS)
-        let languagesJS = 'export default [\n'
-        languages.forEach(language => {
-          languagesJS += `  '${language}',\n`
-        })
-        languagesJS += ']\n'
-        fs.writeFileSync(
-          path.resolve('./translations/languages.js'),
-          languagesJS,
-        )
-        languages.forEach(language => {
-          let key2value = sortObject(language2key2value[language])
-          fs.writeFileSync(
-            path.resolve(`./translations/${language}.json`),
-            JSON.stringify(key2value, null, 2) + '\n',
-          )
-        })
+
+        
+        // let indexJS = ''
+        // languages.forEach(language => {
+        //   indexJS += `import ${language} from './${language}.json'\n`
+        // })
+        // indexJS += '\nexport default {\n'
+        // languages.forEach(language => {
+        //   indexJS += `  ${language},\n`
+        // })
+        // indexJS += '}\n'
+        // fs.mkdirsSync(path.resolve('./translations'))
+        // fs.writeFileSync(path.resolve('./translations/index.js'), indexJS)
+        // let languagesJS = 'export default [\n'
+        // languages.forEach(language => {
+        //   languagesJS += `  '${language}',\n`
+        // })
+        // languagesJS += ']\n'
+        // fs.writeFileSync(
+        //   path.resolve('./translations/languages.js'),
+        //   languagesJS,
+        // )
       }
     } catch (error) {
       console.log('error', error)

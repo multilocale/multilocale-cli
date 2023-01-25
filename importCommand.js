@@ -93,46 +93,45 @@ function importCommand() {
 
       const locale2files = {}
       paths.forEach(path_ => {
-
         if (path_.includes('%lang%')) {
           locales.forEach(locale => {
-
             const suffix = path_.replace('%lang%', locale)
             const matchingFiles = files.filter(file => file.endsWith(suffix))
 
             if (matchingFiles.length === 0) {
-              console.log(`No matching files for path ${path_} and locale ${locale}`)
+              console.log(
+                `No matching files for path ${path_} and locale ${locale}`,
+              )
             } else {
-
               if (!locale2files[locale]) {
                 locale2files[locale] = []
               }
 
               if (matchingFiles.length === 1) {
-                
                 locale2files[locale].push(matchingFiles[0])
-
               } else if (matchingFiles.length > 1) {
-                console.log(`Found multiple matching files for path ${path_} and locale ${locale}:`)
+                console.log(
+                  `Found multiple matching files for path ${path_} and locale ${locale}:`,
+                )
                 matchingFiles.forEach(matchingFile => {
                   console.log(`  ${matchingFile}`)
                   locale2files[locale].push(matchingFile)
                 })
-              } 
+              }
             }
-
           })
         } else {
           console.log(`Path ${path_} does not include %lang%`)
         }
-
       })
 
       const localesFound = Object.keys(locale2files)
       const filesFound = Object.values(locale2files).flat()
-      
+
       if (filesFound.length > 0) {
-        console.log(`Found ${filesFound.length} files in ${localesFound.length} locales:`)
+        console.log(
+          `Found ${filesFound.length} files in ${localesFound.length} locales:`,
+        )
         filesFound.forEach(fileFound => console.log(`  ${fileFound}`))
 
         let key2locale2translatable = {}
@@ -161,11 +160,14 @@ function importCommand() {
 
             if (extension === '.json') {
               json = JSON.parse(fileString)
-
             } else if (!extension === '.json') {
-              throw new Error(`It was not possible to detect the extension of ${file}`)
+              throw new Error(
+                `It was not possible to detect the extension of ${file}`,
+              )
             } else {
-              throw new Error(`Unsupported file extension ${extension} for file ${file}`)
+              throw new Error(
+                `Unsupported file extension ${extension} for file ${file}`,
+              )
             }
 
             let keys = Object.keys(json)
@@ -174,7 +176,6 @@ function importCommand() {
             let translatablesForLanguage = 0
 
             keys.forEach(key => {
-            
               if (!key2locale2translatable[key]) {
                 key2locale2translatable[key] = {}
               }
@@ -195,7 +196,6 @@ function importCommand() {
 
               key2locale2translatable[key][locale] = translatable
               translatablesForLanguage += 1
-
             })
 
             console.log(
@@ -206,7 +206,7 @@ function importCommand() {
 
         let keys = Object.keys(key2locale2translatable)
 
-        for (let k=0; k < keys.length; k+=1) {
+        for (let k = 0; k < keys.length; k += 1) {
           let key = keys[k]
           let locales = Object.keys(key2locale2translatable[key])
 
@@ -215,18 +215,18 @@ function importCommand() {
           }
 
           let from = defaultLocale
-          
+
           if (!key2locale2translatable[key][defaultLocale]) {
             from = locales[0]
           }
-          
+
           for (let l = 0; l < project.locales.length; l += 1) {
             let to = project.locales[l]
             if (!locales.includes(to)) {
               let translatableFrom = key2locale2translatable[key][from]
               let string = translatableFrom.value
-              let { translation } = await translateString({string, to, from})
-              
+              let { translation } = await translateString({ string, to, from })
+
               let translatableTo = {
                 _id: uuid(),
                 key,
@@ -243,29 +243,30 @@ function importCommand() {
               console.log(`${to}: translated key ${key} to ${translation}`)
 
               key2locale2translatable[key][to] = translatableTo
-            } 
+            }
           }
         }
-        
-        let translatables = Object.keys(key2locale2translatable).reduce((translatables, key) => {
 
-          return translatables.concat(Object.values(key2locale2translatable[key]))
-
-        }, [])
+        let translatables = Object.keys(key2locale2translatable).reduce(
+          (translatables, key) => {
+            return translatables.concat(
+              Object.values(key2locale2translatable[key]),
+            )
+          },
+          [],
+        )
 
         await addTranslatables(translatables)
 
         console.log(
           `Added ${translatables.length} translatables: https://app.multilocale.com/projects/${project._id}`,
-        ) 
-
+        )
       } else {
         console.log('Could not find any file matching paths in project')
       }
 
       let translatables = []
-
-    }else {
+    } else {
       console.log('Could not detect project type')
     }
   })

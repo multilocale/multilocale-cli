@@ -3,7 +3,8 @@ const fs = require('fs-extra')
 const path = require('path')
 
 function getFiles_(dir) {
-  const subdirs = fs.readdirSync(dir)
+  let subdirs = fs.readdirSync(dir)
+  subdirs = subdirs.filter(file => !file.startsWith('node_modules'))
   const files = subdirs.map(subdir => {
     const resource = path.resolve(dir, subdir)
     return fs.statSync(resource).isDirectory() ? getFiles(resource) : resource
@@ -11,7 +12,7 @@ function getFiles_(dir) {
   return files.reduce((a, f) => a.concat(f), [])
 }
 
-module.exports = function getFiles(dir) {
+function getFiles(dir) {
   dir = dir || '.'
   let files = getFiles_(dir)
 
@@ -21,3 +22,5 @@ module.exports = function getFiles(dir) {
 
   return files
 }
+
+module.exports = getFiles

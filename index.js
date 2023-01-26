@@ -6,6 +6,7 @@ const downloadCommand = require('./downloadCommand.js')
 const importCommand = require('./importCommand.js')
 const loginCommand = require('./loginCommand.js')
 const logoutCommand = require('./logoutCommand.js')
+const unusedCommand = require('./unusedCommand.js')
 const packageJson = require('./package.json')
 
 program
@@ -16,4 +17,5 @@ program
   .addCommand(importCommand())
   .addCommand(loginCommand())
   .addCommand(logoutCommand())
+  .addCommand(unusedCommand())
   .parse(process.argv)

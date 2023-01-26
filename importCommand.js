@@ -10,7 +10,7 @@ const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
 const getAndroidResPath = require('./getAndroidResPath.js')
 const isAndroid = require('./isAndroid.js')
-const isGatsby = require('./isGatsby.js')
+const isJavascript = require('./isJavascript.js')
 const getFiles = require('./getFiles.js')
 const getProject = require('./getProject.js')
 const login = require('./login.js')
@@ -86,8 +86,8 @@ function importCommand() {
         console.log(
           `Added ${translatables.length} translatables: https://app.multilocale.com/projects/${project._id}`,
         )
-      } else if (isGatsby()) {
-        console.log('Gatsby project detected')
+      } else if (isJavascript()) {
+        console.log('Javascript project detected')
 
         let files = getFiles()
         const { locales, paths } = project
@@ -182,22 +182,30 @@ function importCommand() {
                   key2locale2translatable[key] = {}
                 }
 
-                let translatable = {
-                  _id: uuid(),
-                  key,
-                  value: json[key],
-                  language,
-                  creationTime: new Date().toISOString(),
-                  lastEditTime: new Date().toISOString(),
-                  googleTranslate: false,
-                  imported: true,
-                  organizationId: project.organizationId,
-                  projects: [project.name],
-                  projectsIds: [project._id],
+                let value = json[key]
+
+                if (!value && language === defaultLocale) {
+                  value = key
                 }
 
-                key2locale2translatable[key][locale] = translatable
-                translatablesForLanguage += 1
+                if (value) {
+                  let translatable = {
+                    _id: uuid(),
+                    key,
+                    value,
+                    language,
+                    creationTime: new Date().toISOString(),
+                    lastEditTime: new Date().toISOString(),
+                    googleTranslate: false,
+                    imported: true,
+                    organizationId: project.organizationId,
+                    projects: [project.name],
+                    projectsIds: [project._id],
+                  }
+
+                  key2locale2translatable[key][locale] = translatable
+                  translatablesForLanguage += 1
+                }
               })
 
               console.log(
@@ -227,7 +235,15 @@ function importCommand() {
               if (!locales.includes(to)) {
                 let translatableFrom = key2locale2translatable[key][from]
                 let string = translatableFrom.value
-                let { translation } = await translateString({ string, to, from })
+
+                let translation
+
+                try {
+                  let result = await translateString({ string, to, from })
+                  translation = result.translation
+                } catch (error) {
+                  throw new Error(`Could not translate '${string}' from ${from} to ${to}`)
+                }
 
                 let translatableTo = {
                   _id: uuid(),

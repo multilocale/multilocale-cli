@@ -1,11 +1,19 @@
 {
   "name": "multilocale",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "multilocale cli to download translation files from multilocale.com",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "type": "commonjs",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./src/index.mjs"
+    }
+  },
   "private": false,
-  "type": "module",
-  "scripts": {},
+  "scripts": {
+    "build": "tsup src/*js --format cjs"
+  },
   "keywords": [
     "multi-language",
     "multilingual",
@@ -26,7 +34,7 @@
   },
   "homepage": "https://github.com/multilocale/multilocale-cli",
   "bin": {
-    "multilocale": "./index.js"
+    "multilocale": "./dist/index.js"
   },
   "dependencies": {
     "@multilocale/multilocale-js-client": "^0.0.8",
@@ -36,7 +44,10 @@
     "node-localstorage": "^2.2.1",
     "xml2json": "^0.12.0"
   },
+  "devDependencies": {
+    "tsup": "^6.5.0"
+  },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=12.0.0"
   }
 }

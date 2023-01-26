@@ -8,7 +8,7 @@ import isLoggedInSession from './session/isLoggedInSession.js'
 import getProject from './getProject.js'
 import login from './login.js'
 
-function importCommand() {
+function addCommand() {
   const command = new commander.Command('add')
   command.argument('<key>', 'key of string')
   command.argument(
@@ -88,4 +88,4 @@ function importCommand() {
   return command
 }
 
-export default importCommand
+export default addCommand

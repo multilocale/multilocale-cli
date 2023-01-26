@@ -159,14 +159,14 @@ function downloadCommand() {
         // })
         // indexJS += '}\n'
         // fs.mkdirsSync(path.resolve('./translations'))
-        // fs.writeFileSync(path.resolve('./translations/index.js'), indexJS)
+        // fs.writeFileSync(path.resolve('./translations/index), indexJS)
         // let languagesJS = 'export default [\n'
         // languages.forEach(language => {
         //   languagesJS += `  '${language}',\n`
         // })
         // languagesJS += ']\n'
         // fs.writeFileSync(
-        //   path.resolve('./translations/languages.js'),
+        //   path.resolve('./translations/languages),
         //   languagesJS,
         // )
       }

@@ -1,11 +1,11 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
-import inquirer from 'inquirer'
 import getProjectHttp from '@multilocale/multilocale-js-client/getProject.js'
 import getProjects from '@multilocale/multilocale-js-client/getProjects.js'
 import getConfig from './getConfig.js'
 import setConfig from './setConfig.js'
 
 export default async function getProject(projectIdOrName) {
+
   let project
 
   let config = getConfig()
@@ -32,6 +32,7 @@ export default async function getProject(projectIdOrName) {
         }))
         .sort((a, b) => a.name.localeCompare(b.name))
 
+      let inquirer = await import('inquirer')
       let answers = await inquirer.prompt([
         {
           type: 'list',

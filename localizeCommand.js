@@ -5,6 +5,7 @@ const commander = require('commander')
 const { toJson } = require('xml2json')
 const addTranslatables = require('@multilocale/multilocale-js-client/addTranslatables.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')
+const updateProject = require('@multilocale/multilocale-js-client/updateProject.js')
 const uuid = require('@multilocale/multilocale-js-client/uuid.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
@@ -15,15 +16,19 @@ const getFiles = require('./getFiles.js')
 const getProject = require('./getProject.js')
 const login = require('./login.js')
 
-function importCommand() {
-  const command = new commander.Command('import')
+function addLocaleCommand() {
+  const command = new commander.Command('localize')
   command.option('--project [project]', 'project id or name')
-  command.action(async options => {
+  command.argument('<locale>', 'locale to add and translate')
+  command.action(async (locale, options) => {
     try {
-      console.log('import into multilocale.com')
+      console.log('localize')
+
+      if (!locale) {
+        throw new Error(`argument locale '${locale}' is not valid`)
+      }
 
       rehydrateSession()
-
 
       if (!isLoggedInSession()) {
         await login()
@@ -35,57 +40,8 @@ function importCommand() {
       if (isAndroid()) {
         console.log('Android project detected')
 
-        let files = getFiles()
-        files = files.filter(file => file.endsWith('strings.xml'))
+        throw new Error('Not implemented yet')
 
-        console.log(`Found ${files.length} languages`)
-
-        let translatables = []
-
-        for (let f = 0; f < files.length; f += 1) {
-          let file = files[f]
-          let language = defaultLocale
-          if (file.includes('/values-')) {
-            language = file.split('/values-')[1].split('/')[0] // eslint-disable-line
-          }
-
-          let androidResPath = getAndroidResPath()
-          let stringsXmlPath = path.resolve(androidResPath, 'values/strings.xml')
-          let stringsXml = fs.readFileSync(stringsXmlPath, 'utf8')
-
-          // console.log({ stringsXml })
-
-          let stringsJson = JSON.parse(toJson(stringsXml))
-
-          // console.log(stringsJson)
-
-          let translatablesForLanguage = stringsJson.resources.string.map(
-            ({ name, $t }) => ({
-              _id: uuid(),
-              key: name,
-              value: $t,
-              language,
-              creationTime: new Date().toISOString(),
-              lastEditTime: new Date().toISOString(),
-              googleTranslate: false,
-              imported: true,
-              organizationId: project.organizationId,
-              projects: [project.name],
-            }),
-          )
-
-          console.log(
-            `${language}: Found ${translatablesForLanguage.length} translatables`,
-          )
-
-          translatables = translatables.concat(translatablesForLanguage)
-        }
-
-        await addTranslatables(translatables)
-
-        console.log(
-          `Added ${translatables.length} translatables: https://app.multilocale.com/projects/${project._id}`,
-        )
       } else if (isJavascript()) {
         console.log('Javascript project detected')
 
@@ -93,6 +49,18 @@ function importCommand() {
         const { locales, paths } = project
         console.log({ locales, paths })
 
+        if (locales.includes(locale)) {
+          console.log(`Locale ${locale} already exists`)
+        } else {
+          project = await updateProject({
+            ...project,
+            locales: [...locales, locale],
+          })
+
+          console.log(`Added locale ${locale} to project ${project.name}`)
+        }
+
+      
         const locale2files = {}
         paths.forEach(path_ => {
           if (path_.includes('%lang%')) {
@@ -176,6 +144,7 @@ function importCommand() {
 
               const language = locale
               let translatablesForLanguage = 0
+              
 
               keys.forEach(key => {
                 if (!key2locale2translatable[key]) {
@@ -215,6 +184,7 @@ function importCommand() {
           }
 
           let keys = Object.keys(key2locale2translatable)
+          let newTranslatables = []
 
           for (let k = 0; k < keys.length; k += 1) {
             let key = keys[k]
@@ -230,58 +200,46 @@ function importCommand() {
               from = locales[0]
             }
 
-            for (let l = 0; l < project.locales.length; l += 1) {
-              let to = project.locales[l]
-              if (!locales.includes(to)) {
-                let translatableFrom = key2locale2translatable[key][from]
-                let string = translatableFrom.value
+            let to = locale
+            let translatableFrom = key2locale2translatable[key][from]
+            let string = translatableFrom.value
 
-                let translation
+            let translation
 
-                try {
-                  let result = await translateString({ string, to, from })
-                  translation = result.translation
-                } catch (error) {
-                  throw new Error(`Could not translate '${string}' from ${from} to ${to}`)
-                }
-
-                let translatableTo = {
-                  _id: uuid(),
-                  key,
-                  value: translation,
-                  language: to,
-                  creationTime: new Date().toISOString(),
-                  lastEditTime: new Date().toISOString(),
-                  googleTranslate: true,
-                  organizationId: project.organizationId,
-                  projects: [project.name],
-                  projectsIds: [project._id],
-                }
-
-                console.log(`${to}: translated key ${key} to ${translation}`)
-
-                key2locale2translatable[key][to] = translatableTo
-              }
+            try {
+              let result = await translateString({ string, to, from })
+              translation = result.translation
+            } catch (error) {
+              throw new Error(`Could not translate '${string}' from ${from} to ${to}`)
             }
+
+            let translatableTo = {
+              _id: uuid(),
+              key,
+              value: translation,
+              language: to,
+              creationTime: new Date().toISOString(),
+              lastEditTime: new Date().toISOString(),
+              googleTranslate: true,
+              organizationId: project.organizationId,
+              projects: [project.name],
+              projectsIds: [project._id],
+            }
+
+            console.log(`${to}: translated key ${key} to ${translation}`)
+
+            newTranslatables.push(translatableTo)
           }
 
-          let translatables = Object.keys(key2locale2translatable).reduce(
-            (translatables, key) => {
-              return translatables.concat(
-                Object.values(key2locale2translatable[key]),
-              )
-            },
-            [],
-          )
-
-          await addTranslatables(translatables)
+          await addTranslatables(newTranslatables)
 
           console.log(
-            `Added ${translatables.length} translatables: https://app.multilocale.com/projects/${project._id}`,
+            `Added ${newTranslatables.length} translatables: https://app.multilocale.com/projects/${project._id}`,
           )
         } else {
           console.log('Could not find any file matching paths in project')
         }
+
       } else {
         console.log('Could not detect project type')
       }
@@ -293,4 +251,4 @@ function importCommand() {
   return command
 }
 
-module.exports = importCommand
+module.exports = addLocaleCommand

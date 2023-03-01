@@ -117,7 +117,7 @@ function downloadCommand() {
           },
           {},
         )
-        
+
         let { locales, paths } = project
 
         if (!paths) {
@@ -125,30 +125,30 @@ function downloadCommand() {
         }
 
         paths.forEach(path_ => {
-
           if (path_.includes('%lang%')) {
             locales.forEach(language => {
-
-              let phrasesJsonPath = path.resolve(path_.replace('%lang%', language))
+              let phrasesJsonPath = path.resolve(
+                path_.replace('%lang%', language),
+              )
               let key2value = sortObject(language2key2value[language])
-              
-              fs.mkdirSync(path.dirname(phrasesJsonPath), { recursive: true });
+
+              fs.mkdirSync(path.dirname(phrasesJsonPath), { recursive: true })
               fs.writeFileSync(
                 phrasesJsonPath,
                 JSON.stringify(key2value, null, 2) + '\n',
               )
               console.log(
-                `${language}: ${phrasesJsonPath.replace(path.resolve('.'), '')}`,
+                `${language}: ${phrasesJsonPath.replace(
+                  path.resolve('.'),
+                  '',
+                )}`,
               )
-
             })
           } else {
             console.log(`Path ${path_} does not include %lang%`)
           }
-
         })
 
-        
         // let indexJS = ''
         // languages.forEach(language => {
         //   indexJS += `const ${language} = require('./${language}.json'\n`)

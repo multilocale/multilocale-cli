@@ -2,7 +2,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const commander = require('commander')
-const { toJson } = require('xml2json')
+const xml2js = require('xml2js')
 const addTranslatables = require('@multilocale/multilocale-js-client/addTranslatables.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')
 const uuid = require('@multilocale/multilocale-js-client/uuid.js')
@@ -15,6 +15,18 @@ const getFiles = require('./getFiles.js')
 const getProject = require('./getProject.js')
 const login = require('./login.js')
 
+function convertXmlStringToJson(xml) {
+  return new Promise((resolve, reject) => {
+    xml2js.parseString(xml, (err, result) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(result)
+      }
+    })
+  })
+}
+
 function importCommand() {
   const command = new commander.Command('import')
   command.option('--project [project]', 'project id or name')
@@ -24,14 +36,13 @@ function importCommand() {
 
       rehydrateSession()
 
-
       if (!isLoggedInSession()) {
         await login()
       }
 
       let project = await getProject(options?.project)
       let defaultLocale = project.defaultLocale || 'en'
-      
+
       if (isAndroid()) {
         console.log('Android project detected')
 
@@ -49,21 +60,24 @@ function importCommand() {
             language = file.split('/values-')[1].split('/')[0] // eslint-disable-line
           }
 
-          let androidResPath = getAndroidResPath()
-          let stringsXmlPath = path.resolve(androidResPath, 'values/strings.xml')
+          let stringsXmlPath = path.resolve(file)
+          if (stringsXmlPath.startsWith('/')) {
+            stringsXmlPath = stringsXmlPath.slice(1)
+          }
+          // console.log({ stringsXmlPath })
           let stringsXml = fs.readFileSync(stringsXmlPath, 'utf8')
 
           // console.log({ stringsXml })
 
-          let stringsJson = JSON.parse(toJson(stringsXml))
+          let stringsJson = await convertXmlStringToJson(stringsXml)
 
-          // console.log(stringsJson)
+          // console.log(JSON.stringify(stringsJson, null, 2))
 
           let translatablesForLanguage = stringsJson.resources.string.map(
-            ({ name, $t }) => ({
+            ({ $: { name }, _ }) => ({
               _id: uuid(),
               key: name,
-              value: $t,
+              value: _,
               language,
               creationTime: new Date().toISOString(),
               lastEditTime: new Date().toISOString(),
@@ -80,6 +94,8 @@ function importCommand() {
 
           translatables = translatables.concat(translatablesForLanguage)
         }
+
+        // console.log({ translatables })
 
         await addTranslatables(translatables)
 
@@ -242,7 +258,9 @@ function importCommand() {
                   let result = await translateString({ string, to, from })
                   translation = result.translation
                 } catch (error) {
-                  throw new Error(`Could not translate '${string}' from ${from} to ${to}`)
+                  throw new Error(
+                    `Could not translate '${string}' from ${from} to ${to}`,
+                  )
                 }
 
                 let translatableTo = {

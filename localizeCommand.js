@@ -2,14 +2,12 @@
 const fs = require('fs-extra')
 const path = require('path')
 const commander = require('commander')
-const { toJson } = require('xml2json')
 const addTranslatables = require('@multilocale/multilocale-js-client/addTranslatables.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')
 const updateProject = require('@multilocale/multilocale-js-client/updateProject.js')
 const uuid = require('@multilocale/multilocale-js-client/uuid.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
-const getAndroidResPath = require('./getAndroidResPath.js')
 const isAndroid = require('./isAndroid.js')
 const isJavascript = require('./isJavascript.js')
 const getFiles = require('./getFiles.js')
@@ -36,12 +34,11 @@ function addLocaleCommand() {
 
       let project = await getProject(options?.project)
       let defaultLocale = project.defaultLocale || 'en'
-      
+
       if (isAndroid()) {
         console.log('Android project detected')
 
         throw new Error('Not implemented yet')
-
       } else if (isJavascript()) {
         console.log('Javascript project detected')
 
@@ -60,7 +57,6 @@ function addLocaleCommand() {
           console.log(`Added locale ${locale} to project ${project.name}`)
         }
 
-      
         const locale2files = {}
         paths.forEach(path_ => {
           if (path_.includes('%lang%')) {
@@ -144,7 +140,6 @@ function addLocaleCommand() {
 
               const language = locale
               let translatablesForLanguage = 0
-              
 
               keys.forEach(key => {
                 if (!key2locale2translatable[key]) {
@@ -210,7 +205,9 @@ function addLocaleCommand() {
               let result = await translateString({ string, to, from })
               translation = result.translation
             } catch (error) {
-              throw new Error(`Could not translate '${string}' from ${from} to ${to}`)
+              throw new Error(
+                `Could not translate '${string}' from ${from} to ${to}`,
+              )
             }
 
             let translatableTo = {
@@ -239,7 +236,6 @@ function addLocaleCommand() {
         } else {
           console.log('Could not find any file matching paths in project')
         }
-
       } else {
         console.log('Could not detect project type')
       }

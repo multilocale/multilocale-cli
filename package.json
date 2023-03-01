@@ -4,9 +4,7 @@
   "description": "multilocale cli to download translation files from multilocale.com",
   "type": "commonjs",
   "private": false,
-  "scripts": {
-    
-  },
+  "scripts": {},
   "keywords": [
     "multi-language",
     "multilingual",
@@ -30,15 +28,12 @@
     "multilocale": "./index.js"
   },
   "dependencies": {
-    "@multilocale/multilocale-js-client": "^0.0.8",
+    "@multilocale/multilocale-js-client": "0.0.9",
     "commander": "8.3.0",
     "fs-extra": "10.1.0",
     "inquirer": "8.2.5",
-    "node-localstorage": "^2.2.1",
-    "xml2json": "^0.12.0"
-  },
-  "devDependencies": {
-    
+    "node-localstorage": "2.2.1",
+    "xml2js": "0.4.23"
   },
   "engines": {
     "node": ">=12.0.0"

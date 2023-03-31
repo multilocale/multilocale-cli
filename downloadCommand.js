@@ -2,7 +2,7 @@
 const commander = require('commander')
 const fs = require('fs-extra')
 const path = require('path')
-const getTranslatables = require('@multilocale/multilocale-js-client/getTranslatables.js')
+const getPhrases = require('@multilocale/multilocale-js-client/getPhrases.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
 const getAndroidResPath = require('./getAndroidResPath.js')
@@ -34,24 +34,23 @@ function downloadCommand() {
 
       let project = await getProject(options?.project)
 
-      let translatables = await getTranslatables({
+      let phrases = await getPhrases({
         project: project.name,
       })
-      console.log(`Found ${translatables?.length ?? 0} translatables`)
+      console.log(`Found ${phrases?.length ?? 0} phrases`)
 
       if (isAndroid()) {
         console.log('Android project detected')
         let androidResPath = getAndroidResPath()
 
-        let language2key2value = translatables.reduce(
-          (language2key2value, translatable) => {
-            if (!language2key2value[translatable.language]) {
-              language2key2value[translatable.language] = {
-                locale: translatable.language,
+        let language2key2value = phrases.reduce(
+          (language2key2value, phrase) => {
+            if (!language2key2value[phrase.language]) {
+              language2key2value[phrase.language] = {
+                locale: phrase.language,
               }
             }
-            language2key2value[translatable.language][translatable.key] =
-              translatable.value
+            language2key2value[phrase.language][phrase.key] = phrase.value
             return language2key2value
           },
           {},
@@ -104,15 +103,14 @@ function downloadCommand() {
           )
         }
       } else {
-        let language2key2value = translatables.reduce(
-          (language2key2value, translatable) => {
-            if (!language2key2value[translatable.language]) {
-              language2key2value[translatable.language] = {
-                locale: translatable.language,
+        let language2key2value = phrases.reduce(
+          (language2key2value, phrase) => {
+            if (!language2key2value[phrase.language]) {
+              language2key2value[phrase.language] = {
+                locale: phrase.language,
               }
             }
-            language2key2value[translatable.language][translatable.key] =
-              translatable.value
+            language2key2value[phrase.language][phrase.key] = phrase.value
             return language2key2value
           },
           {},

@@ -19,19 +19,17 @@ function unusedCommand() {
 
       rehydrateSession()
 
-
       if (!isLoggedInSession()) {
         await login()
       }
 
       let project = await getProject(options?.project)
       let defaultLocale = project.defaultLocale || 'en'
-      
+
       if (isAndroid()) {
         console.log('Android project detected')
 
         throw new Error('Not implemented yet')
-
       } else if (isJavascript()) {
         console.log('Javascript project detected')
 
@@ -121,20 +119,20 @@ function unusedCommand() {
               let keys = Object.keys(json)
 
               const language = locale
-              
+
               keys.forEach(key => {
                 keysObject[key] = true
               })
 
-              console.log(
-                `${language}: Found ${keys.length} keys`,
-              )
+              console.log(`${language}: Found ${keys.length} keys`)
             }
           }
 
           let keys = Object.keys(keysObject)
 
-          console.log(`Found ${keys.length} unique keys across all ${localesFound.length} locales`)
+          console.log(
+            `Found ${keys.length} unique keys across all ${localesFound.length} locales`,
+          )
 
           const extensions = ['.js', '.jsx', '.ts', '.tsx', '.cjs', '.mjs']
           files = files.filter(file => extensions.includes(path.extname(file)))
@@ -144,9 +142,9 @@ function unusedCommand() {
             let file = files[f]
 
             let filePath = path.join(path.resolve('.'), file)
-            
+
             let fileContent = fs.readFileSync(filePath, 'utf8')
-            
+
             for (let k = 0; k < keys.length; k += 1) {
               let key = keys[k]
 
@@ -157,14 +155,19 @@ function unusedCommand() {
           }
 
           let unusedKeys = Object.keys(keysObject)
-          console.log(`${unusedKeys.length} keys could not be found in any file with extensions ${extensions.join(', ')}:`)
+          console.log(
+            `${
+              unusedKeys.length
+            } keys could not be found in any file with extensions ${extensions.join(
+              ', ',
+            )}:`,
+          )
           console.log(unusedKeys)
-          
         } else {
           console.log('Could not find any file matching paths in project')
         }
 
-        let translatables = []
+        let phrases = []
       } else {
         console.log('Could not detect project type')
       }

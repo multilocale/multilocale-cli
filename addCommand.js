@@ -1,6 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const commander = require('commander')
-const addTranslatables = require('@multilocale/multilocale-js-client/addTranslatables.js')
+const addPhrases = require('@multilocale/multilocale-js-client/addPhrases.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')
 const uuid = require('@multilocale/multilocale-js-client/uuid.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
@@ -32,9 +32,9 @@ function addCommand() {
     let project = await getProject(options?.project)
     let language = project.defaultLocale || 'en'
 
-    let translatables = []
+    let phrases = []
 
-    let translatableOriginal = {
+    let phraseOriginal = {
       _id: uuid(),
       key,
       value,
@@ -47,41 +47,41 @@ function addCommand() {
       projectsIds: [project._id],
     }
 
-    // console.log({ translatableOriginal })
+    // console.log({ phraseOriginal })
 
-    translatables.push(translatableOriginal)
+    phrases.push(phraseOriginal)
     console.log(`${language}: ${value}`)
 
     for (let i = 0; i < project.locales.length; i += 1) {
       let locale = project.locales[i]
       if (locale !== language) {
-        let string = translatableOriginal.value
+        let string = phraseOriginal.value
         let to = locale
-        let from = translatableOriginal.language
+        let from = phraseOriginal.language
         let { translation } = await translateString({
           string,
           to,
           from,
         })
-        let translatable = {
-          ...translatableOriginal,
+        let phrase = {
+          ...phraseOriginal,
           _id: uuid(),
           language: locale,
           googleTranslate: true,
           value: translation,
         }
 
-        translatables.push(translatable)
+        phrases.push(phrase)
         console.log(`${locale}: ${translation}`)
       }
     }
 
-    // console.log(JSON.stringify(translatables, null, 2))
+    // console.log(JSON.stringify(phrases, null, 2))
 
-    await addTranslatables(translatables)
+    await addPhrases(phrases)
 
     console.log(
-      `Added ${translatables.length} phrases: https://app.multilocale.com/projects/${project._id}`,
+      `Added ${phrases.length} phrases: https://app.multilocale.com/projects/${project._id}`,
     )
   })
 

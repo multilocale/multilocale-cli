@@ -11,10 +11,10 @@ const unusedCommand = require('./unusedCommand.js')
 const packageJson = require('./package.json')
 
 program
-  .description('manage translatables')
+  .description('manage phrases')
   .version(packageJson.version)
   .addCommand(addCommand())
-  
+
   .addCommand(downloadCommand())
   .addCommand(importCommand())
   .addCommand(localizeCommand())

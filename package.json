@@ -1,6 +1,6 @@
 {
   "name": "multilocale",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "multilocale cli to download translation files from multilocale.com",
   "type": "commonjs",
   "private": false,
@@ -28,7 +28,7 @@
     "multilocale": "./index.js"
   },
   "dependencies": {
-    "@multilocale/multilocale-js-client": "0.0.9",
+    "@multilocale/multilocale-js-client": "0.0.10",
     "commander": "8.3.0",
     "fs-extra": "10.1.0",
     "inquirer": "8.2.5",

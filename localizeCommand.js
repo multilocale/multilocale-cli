@@ -2,7 +2,7 @@
 const fs = require('fs-extra')
 const path = require('path')
 const commander = require('commander')
-const addTranslatables = require('@multilocale/multilocale-js-client/addTranslatables.js')
+const addPhrases = require('@multilocale/multilocale-js-client/addPhrases.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')
 const updateProject = require('@multilocale/multilocale-js-client/updateProject.js')
 const uuid = require('@multilocale/multilocale-js-client/uuid.js')
@@ -100,7 +100,7 @@ function addLocaleCommand() {
           )
           filesFound.forEach(fileFound => console.log(`  ${fileFound}`))
 
-          let key2locale2translatable = {}
+          let key2locale2phrase = {}
 
           for (let l = 0; l < localesFound.length; l += 1) {
             let locale = localesFound[l]
@@ -139,11 +139,11 @@ function addLocaleCommand() {
               let keys = Object.keys(json)
 
               const language = locale
-              let translatablesForLanguage = 0
+              let phrasesForLanguage = 0
 
               keys.forEach(key => {
-                if (!key2locale2translatable[key]) {
-                  key2locale2translatable[key] = {}
+                if (!key2locale2phrase[key]) {
+                  key2locale2phrase[key] = {}
                 }
 
                 let value = json[key]
@@ -153,7 +153,7 @@ function addLocaleCommand() {
                 }
 
                 if (value) {
-                  let translatable = {
+                  let phrase = {
                     _id: uuid(),
                     key,
                     value,
@@ -167,23 +167,21 @@ function addLocaleCommand() {
                     projectsIds: [project._id],
                   }
 
-                  key2locale2translatable[key][locale] = translatable
-                  translatablesForLanguage += 1
+                  key2locale2phrase[key][locale] = phrase
+                  phrasesForLanguage += 1
                 }
               })
 
-              console.log(
-                `${language}: Found ${translatablesForLanguage} translatables`,
-              )
+              console.log(`${language}: Found ${phrasesForLanguage} phrases`)
             }
           }
 
-          let keys = Object.keys(key2locale2translatable)
-          let newTranslatables = []
+          let keys = Object.keys(key2locale2phrase)
+          let newPhrases = []
 
           for (let k = 0; k < keys.length; k += 1) {
             let key = keys[k]
-            let locales = Object.keys(key2locale2translatable[key])
+            let locales = Object.keys(key2locale2phrase[key])
 
             if (locales.length === 0) {
               throw new Error(`key ${key} has no locales`)
@@ -191,13 +189,13 @@ function addLocaleCommand() {
 
             let from = defaultLocale
 
-            if (!key2locale2translatable[key][defaultLocale]) {
+            if (!key2locale2phrase[key][defaultLocale]) {
               from = locales[0]
             }
 
             let to = locale
-            let translatableFrom = key2locale2translatable[key][from]
-            let string = translatableFrom.value
+            let phraseFrom = key2locale2phrase[key][from]
+            let string = phraseFrom.value
 
             let translation
 
@@ -210,7 +208,7 @@ function addLocaleCommand() {
               )
             }
 
-            let translatableTo = {
+            let phraseTo = {
               _id: uuid(),
               key,
               value: translation,
@@ -225,13 +223,13 @@ function addLocaleCommand() {
 
             console.log(`${to}: translated key ${key} to ${translation}`)
 
-            newTranslatables.push(translatableTo)
+            newPhrases.push(phraseTo)
           }
 
-          await addTranslatables(newTranslatables)
+          await addPhrases(newPhrases)
 
           console.log(
-            `Added ${newTranslatables.length} translatables: https://app.multilocale.com/projects/${project._id}`,
+            `Added ${newPhrases.length} phrases: https://app.multilocale.com/projects/${project._id}`,
           )
         } else {
           console.log('Could not find any file matching paths in project')

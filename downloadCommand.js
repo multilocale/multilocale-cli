@@ -34,6 +34,8 @@ function downloadCommand() {
 
       let project = await getProject(options?.project)
 
+      console.log(`Project: ${project.name} (${project._id})`)
+
       let phrases = await getPhrases({
         project: project.name,
       })
@@ -65,9 +67,9 @@ function downloadCommand() {
           let key2value = sortObject(language2key2value[language])
           let keys = Object.keys(key2value)
           const stringsXml =
-            '/* DO NOT EDIT MANUALLY */\n' +
-            `/* Edit at https://app.multilocale.com/projects/${project._id} */\n` +
-            '/* Download translation files with https://github.com/multilocale/multilocale-cli */\n' +
+            // '/* DO NOT EDIT MANUALLY */\n' +
+            // `/* Edit at https://app.multilocale.com/projects/${project._id} */\n` +
+            // '/* Download translation files with https://github.com/multilocale/multilocale-cli */\n' +
             '<?xml version="1.0" encoding="utf-8"?>\n' +
             '<resources>\n' +
             keys.reduce((string, key) => {

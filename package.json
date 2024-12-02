@@ -4,7 +4,10 @@
   "description": "multilocale cli to download translation files from multilocale.com",
   "type": "commonjs",
   "private": false,
-  "scripts": {},
+  "scripts": {
+    "develop": "node index.js",
+    "publish": "npm publish --access public"
+  },
   "keywords": [
     "multi-language",
     "multilingual",

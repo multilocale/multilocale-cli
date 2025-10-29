@@ -1,6 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
-const os = require('os')
-const path = require('path')
+const os = require('node:os')
+const path = require('node:path')
 const { LocalStorage } = require('node-localstorage')
 
 let localStorage

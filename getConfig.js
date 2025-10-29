@@ -4,7 +4,7 @@ const getConfigPath = require('./getConfigPath.js')
 
 module.exports = function getConfig() {
   let config
-  let configPath = getConfigPath()
+  const configPath = getConfigPath()
 
   if (configPath) {
     config = fs.readFileSync(configPath, 'utf8')

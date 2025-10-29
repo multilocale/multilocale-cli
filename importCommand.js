@@ -1,6 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const fs = require('fs-extra')
-const path = require('path')
+const path = require('node:path')
 const commander = require('commander')
 const xml2js = require('xml2js')
 const addPhrases = require('@multilocale/multilocale-js-client/addPhrases.js')
@@ -8,7 +8,7 @@ const translateString = require('@multilocale/multilocale-js-client/translateStr
 const uuid = require('@multilocale/multilocale-js-client/uuid.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
-const getAndroidResPath = require('./getAndroidResPath.js')
+const _getAndroidResPath = require('./getAndroidResPath.js')
 const isAndroid = require('./isAndroid.js')
 const isJavascript = require('./isJavascript.js')
 const getFiles = require('./getFiles.js')
@@ -40,8 +40,8 @@ function importCommand() {
         await login()
       }
 
-      let project = await getProject(options?.project)
-      let defaultLocale = project.defaultLocale || 'en'
+      const project = await getProject(options?.project)
+      const defaultLocale = project.defaultLocale || 'en'
 
       if (isAndroid()) {
         console.log('Android project detected')
@@ -54,7 +54,7 @@ function importCommand() {
         let phrases = []
 
         for (let f = 0; f < files.length; f += 1) {
-          let file = files[f]
+          const file = files[f]
           let language = defaultLocale
           if (file.includes('/values-')) {
             language = file.split('/values-')[1].split('/')[0] // eslint-disable-line
@@ -65,15 +65,15 @@ function importCommand() {
             stringsXmlPath = stringsXmlPath.slice(1)
           }
           // console.log({ stringsXmlPath })
-          let stringsXml = fs.readFileSync(stringsXmlPath, 'utf8')
+          const stringsXml = fs.readFileSync(stringsXmlPath, 'utf8')
 
           // console.log({ stringsXml })
 
-          let stringsJson = await convertXmlStringToJson(stringsXml)
+          const stringsJson = await convertXmlStringToJson(stringsXml)
 
           // console.log(JSON.stringify(stringsJson, null, 2))
 
-          let phrasesForLanguage = stringsJson.resources.string.map(
+          const phrasesForLanguage = stringsJson.resources.string.map(
             ({ $: { name }, _ }) => ({
               _id: uuid(),
               key: name,
@@ -103,7 +103,7 @@ function importCommand() {
       } else if (isJavascript()) {
         console.log('Javascript project detected')
 
-        let files = getFiles()
+        const files = getFiles()
         const { locales, paths } = project
         console.log({ locales, paths })
 
@@ -150,11 +150,11 @@ function importCommand() {
           )
           filesFound.forEach(fileFound => console.log(`  ${fileFound}`))
 
-          let key2locale2phrase = {}
+          const key2locale2phrase = {}
 
           for (let l = 0; l < localesFound.length; l += 1) {
-            let locale = localesFound[l]
-            let files = locale2files[locale]
+            const locale = localesFound[l]
+            const files = locale2files[locale]
 
             for (let f = 0; f < files.length; f += 1) {
               let file = files[f]
@@ -163,13 +163,13 @@ function importCommand() {
                 file = file.substring(1)
               }
 
-              let filePath = path.resolve(file)
+              const filePath = path.resolve(file)
 
-              let fileString = fs.readFileSync(filePath, 'utf8')
+              const fileString = fs.readFileSync(filePath, 'utf8')
 
               // console.log({ fileString })
 
-              let extension = path.extname(file)
+              const extension = path.extname(file)
               // console.log({ extension })
 
               let json
@@ -186,7 +186,7 @@ function importCommand() {
                 )
               }
 
-              let keys = Object.keys(json)
+              const keys = Object.keys(json)
 
               const language = locale
               let phrasesForLanguage = 0
@@ -203,7 +203,7 @@ function importCommand() {
                 }
 
                 if (value) {
-                  let phrase = {
+                  const phrase = {
                     _id: uuid(),
                     key,
                     value,
@@ -226,11 +226,11 @@ function importCommand() {
             }
           }
 
-          let keys = Object.keys(key2locale2phrase)
+          const keys = Object.keys(key2locale2phrase)
 
           for (let k = 0; k < keys.length; k += 1) {
-            let key = keys[k]
-            let locales = Object.keys(key2locale2phrase[key])
+            const key = keys[k]
+            const locales = Object.keys(key2locale2phrase[key])
 
             if (locales.length === 0) {
               throw new Error(`key ${key} has no locales`)
@@ -243,23 +243,23 @@ function importCommand() {
             }
 
             for (let l = 0; l < project.locales.length; l += 1) {
-              let to = project.locales[l]
+              const to = project.locales[l]
               if (!locales.includes(to)) {
-                let phraseFrom = key2locale2phrase[key][from]
-                let string = phraseFrom.value
+                const phraseFrom = key2locale2phrase[key][from]
+                const string = phraseFrom.value
 
                 let translation
 
                 try {
-                  let result = await translateString({ string, to, from })
+                  const result = await translateString({ string, to, from })
                   translation = result.translation
-                } catch (error) {
+                } catch (_error) {
                   throw new Error(
                     `Could not translate '${string}' from ${from} to ${to}`,
                   )
                 }
 
-                let phraseTo = {
+                const phraseTo = {
                   _id: uuid(),
                   key,
                   value: translation,
@@ -279,7 +279,7 @@ function importCommand() {
             }
           }
 
-          let phrases = Object.keys(key2locale2phrase).reduce(
+          const phrases = Object.keys(key2locale2phrase).reduce(
             (phrases, key) => {
               return phrases.concat(Object.values(key2locale2phrase[key]))
             },

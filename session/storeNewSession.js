@@ -3,7 +3,9 @@ const {
   setAccessTokenForMultilocaleClient,
   setAccessTokenCallbackForMultilocaleClient,
 } = require('@multilocale/multilocale-js-client/accessToken.js')
-const { setRefreshTokenForMultilocaleClient } = require('@multilocale/multilocale-js-client/refreshToken.js')
+const {
+  setRefreshTokenForMultilocaleClient,
+} = require('@multilocale/multilocale-js-client/refreshToken.js')
 const setAccessToken = require('./setAccessToken.js')
 const setRefreshToken = require('./setRefreshToken.js')
 

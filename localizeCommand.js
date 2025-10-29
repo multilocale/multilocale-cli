@@ -1,6 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const fs = require('fs-extra')
-const path = require('path')
+const path = require('node:path')
 const commander = require('commander')
 const addPhrases = require('@multilocale/multilocale-js-client/addPhrases.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')
@@ -33,7 +33,7 @@ function addLocaleCommand() {
       }
 
       let project = await getProject(options?.project)
-      let defaultLocale = project.defaultLocale || 'en'
+      const defaultLocale = project.defaultLocale || 'en'
 
       if (isAndroid()) {
         console.log('Android project detected')
@@ -42,7 +42,7 @@ function addLocaleCommand() {
       } else if (isJavascript()) {
         console.log('Javascript project detected')
 
-        let files = getFiles()
+        const files = getFiles()
         const { locales, paths } = project
         console.log({ locales, paths })
 
@@ -100,11 +100,11 @@ function addLocaleCommand() {
           )
           filesFound.forEach(fileFound => console.log(`  ${fileFound}`))
 
-          let key2locale2phrase = {}
+          const key2locale2phrase = {}
 
           for (let l = 0; l < localesFound.length; l += 1) {
-            let locale = localesFound[l]
-            let files = locale2files[locale]
+            const locale = localesFound[l]
+            const files = locale2files[locale]
 
             for (let f = 0; f < files.length; f += 1) {
               let file = files[f]
@@ -113,13 +113,13 @@ function addLocaleCommand() {
                 file = file.substring(1)
               }
 
-              let filePath = path.resolve(file)
+              const filePath = path.resolve(file)
 
-              let fileString = fs.readFileSync(filePath, 'utf8')
+              const fileString = fs.readFileSync(filePath, 'utf8')
 
               // console.log({ fileString })
 
-              let extension = path.extname(file)
+              const extension = path.extname(file)
               // console.log({ extension })
 
               let json
@@ -136,7 +136,7 @@ function addLocaleCommand() {
                 )
               }
 
-              let keys = Object.keys(json)
+              const keys = Object.keys(json)
 
               const language = locale
               let phrasesForLanguage = 0
@@ -153,7 +153,7 @@ function addLocaleCommand() {
                 }
 
                 if (value) {
-                  let phrase = {
+                  const phrase = {
                     _id: uuid(),
                     key,
                     value,
@@ -176,12 +176,12 @@ function addLocaleCommand() {
             }
           }
 
-          let keys = Object.keys(key2locale2phrase)
-          let newPhrases = []
+          const keys = Object.keys(key2locale2phrase)
+          const newPhrases = []
 
           for (let k = 0; k < keys.length; k += 1) {
-            let key = keys[k]
-            let locales = Object.keys(key2locale2phrase[key])
+            const key = keys[k]
+            const locales = Object.keys(key2locale2phrase[key])
 
             if (locales.length === 0) {
               throw new Error(`key ${key} has no locales`)
@@ -193,22 +193,22 @@ function addLocaleCommand() {
               from = locales[0]
             }
 
-            let to = locale
-            let phraseFrom = key2locale2phrase[key][from]
-            let string = phraseFrom.value
+            const to = locale
+            const phraseFrom = key2locale2phrase[key][from]
+            const string = phraseFrom.value
 
             let translation
 
             try {
-              let result = await translateString({ string, to, from })
+              const result = await translateString({ string, to, from })
               translation = result.translation
-            } catch (error) {
+            } catch (_error) {
               throw new Error(
                 `Could not translate '${string}' from ${from} to ${to}`,
               )
             }
 
-            let phraseTo = {
+            const phraseTo = {
               _id: uuid(),
               key,
               value: translation,

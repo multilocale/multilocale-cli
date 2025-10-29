@@ -29,12 +29,12 @@ function addCommand() {
       await login()
     }
 
-    let project = await getProject(options?.project)
-    let language = project.defaultLocale || 'en'
+    const project = await getProject(options?.project)
+    const language = project.defaultLocale || 'en'
 
-    let phrases = []
+    const phrases = []
 
-    let phraseOriginal = {
+    const phraseOriginal = {
       _id: uuid(),
       key,
       value,
@@ -53,17 +53,17 @@ function addCommand() {
     console.log(`${language}: ${value}`)
 
     for (let i = 0; i < project.locales.length; i += 1) {
-      let locale = project.locales[i]
+      const locale = project.locales[i]
       if (locale !== language) {
-        let string = phraseOriginal.value
-        let to = locale
-        let from = phraseOriginal.language
-        let { translation } = await translateString({
+        const string = phraseOriginal.value
+        const to = locale
+        const from = phraseOriginal.language
+        const { translation } = await translateString({
           string,
           to,
           from,
         })
-        let phrase = {
+        const phrase = {
           ...phraseOriginal,
           _id: uuid(),
           language: locale,

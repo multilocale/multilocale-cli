@@ -1,6 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const fs = require('fs-extra')
-const path = require('path')
+const path = require('node:path')
 
 function getFiles_(dir) {
   let subdirs = fs.readdirSync(dir)

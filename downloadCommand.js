@@ -1,7 +1,7 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const commander = require('commander')
 const fs = require('fs-extra')
-const path = require('path')
+const path = require('node:path')
 const getPhrases = require('@multilocale/multilocale-js-client/getPhrases.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
@@ -32,20 +32,20 @@ function downloadCommand() {
         await login()
       }
 
-      let project = await getProject(options?.project)
+      const project = await getProject(options?.project)
 
       console.log(`Project: ${project.name} (${project._id})`)
 
-      let phrases = await getPhrases({
+      const phrases = await getPhrases({
         project: project.name,
       })
       console.log(`Found ${phrases?.length ?? 0} phrases`)
 
       if (isAndroid()) {
         console.log('Android project detected')
-        let androidResPath = getAndroidResPath()
+        const androidResPath = getAndroidResPath()
 
-        let language2key2value = phrases.reduce(
+        const language2key2value = phrases.reduce(
           (language2key2value, phrase) => {
             if (!language2key2value[phrase.language]) {
               language2key2value[phrase.language] = {
@@ -58,14 +58,14 @@ function downloadCommand() {
           {},
         )
         // console.log('language2key2value', language2key2value)
-        let languages = Object.keys(language2key2value).sort()
+        const languages = Object.keys(language2key2value).sort()
 
         console.log(`Found ${languages?.length ?? 0} languages`)
 
         for (let l = 0; l < languages.length; l += 1) {
-          let language = languages[l]
-          let key2value = sortObject(language2key2value[language])
-          let keys = Object.keys(key2value)
+          const language = languages[l]
+          const key2value = sortObject(language2key2value[language])
+          const keys = Object.keys(key2value)
           const stringsXml =
             // '/* DO NOT EDIT MANUALLY */\n' +
             // `/* Edit at https://app.multilocale.com/projects/${project._id} */\n` +
@@ -73,7 +73,7 @@ function downloadCommand() {
             '<?xml version="1.0" encoding="utf-8"?>\n' +
             '<resources>\n' +
             keys.reduce((string, key) => {
-              let value = key2value[key] || ''
+              const value = key2value[key] || ''
 
               string += `<string name="${key}">${value}</string>\n`
 
@@ -81,7 +81,7 @@ function downloadCommand() {
             }, '') +
             '</resources>\n'
 
-          let folderPath =
+          const folderPath =
             language === 'en'
               ? path.resolve(androidResPath, 'values')
               : path.resolve(androidResPath, `values-${language}`)
@@ -91,11 +91,11 @@ function downloadCommand() {
           if (!fs.existsSync(folderPath)) {
             fs.mkdirSync(folderPath)
           }
-          let stringsXmlPath = path.resolve(folderPath, 'strings.xml')
+          const stringsXmlPath = path.resolve(folderPath, 'strings.xml')
 
           // console.log({ stringsXmlPath })
 
-          let stringXmlPretty = stringsXml
+          const stringXmlPretty = stringsXml
 
           // console.log({ stringXmlPretty })
 
@@ -105,7 +105,7 @@ function downloadCommand() {
           )
         }
       } else {
-        let language2key2value = phrases.reduce(
+        const language2key2value = phrases.reduce(
           (language2key2value, phrase) => {
             if (!language2key2value[phrase.language]) {
               language2key2value[phrase.language] = {
@@ -127,15 +127,15 @@ function downloadCommand() {
         paths.forEach(path_ => {
           if (path_.includes('%lang%')) {
             locales.forEach(language => {
-              let phrasesJsonPath = path.resolve(
+              const phrasesJsonPath = path.resolve(
                 path_.replace('%lang%', language),
               )
-              let key2value = sortObject(language2key2value[language])
+              const key2value = sortObject(language2key2value[language])
 
               fs.mkdirSync(path.dirname(phrasesJsonPath), { recursive: true })
               fs.writeFileSync(
                 phrasesJsonPath,
-                JSON.stringify(key2value, null, 2) + '\n',
+                `${JSON.stringify(key2value, null, 2)}\n`,
               )
               console.log(
                 `${language}: ${phrasesJsonPath.replace(

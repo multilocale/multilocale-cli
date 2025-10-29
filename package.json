@@ -1,6 +1,6 @@
 {
   "name": "multilocale",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "multilocale cli to download translation files from multilocale.com",
   "type": "commonjs",
   "private": false,
@@ -22,7 +22,7 @@
     "url": "git+https://github.com/multilocale/multilocale-cli.git"
   },
   "author": "Multilocale",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/multilocale/multilocale-cli/issues"
   },

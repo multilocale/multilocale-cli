@@ -1,6 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const fs = require('fs-extra')
-const path = require('path')
+const path = require('node:path')
 const commander = require('commander')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
@@ -23,8 +23,8 @@ function unusedCommand() {
         await login()
       }
 
-      let project = await getProject(options?.project)
-      let defaultLocale = project.defaultLocale || 'en'
+      const project = await getProject(options?.project)
+      const _defaultLocale = project.defaultLocale || 'en'
 
       if (isAndroid()) {
         console.log('Android project detected')
@@ -83,8 +83,8 @@ function unusedCommand() {
           filesFound.forEach(fileFound => console.log(`  ${fileFound}`))
 
           for (let l = 0; l < localesFound.length; l += 1) {
-            let locale = localesFound[l]
-            let files = locale2files[locale]
+            const locale = localesFound[l]
+            const files = locale2files[locale]
 
             for (let f = 0; f < files.length; f += 1) {
               let file = files[f]
@@ -93,13 +93,13 @@ function unusedCommand() {
                 file = file.substring(1)
               }
 
-              let filePath = path.resolve(file)
+              const filePath = path.resolve(file)
 
-              let fileString = fs.readFileSync(filePath, 'utf8')
+              const fileString = fs.readFileSync(filePath, 'utf8')
 
               // console.log({ fileString })
 
-              let extension = path.extname(file)
+              const extension = path.extname(file)
               // console.log({ extension })
 
               let json
@@ -116,7 +116,7 @@ function unusedCommand() {
                 )
               }
 
-              let keys = Object.keys(json)
+              const keys = Object.keys(json)
 
               const language = locale
 
@@ -128,7 +128,7 @@ function unusedCommand() {
             }
           }
 
-          let keys = Object.keys(keysObject)
+          const keys = Object.keys(keysObject)
 
           console.log(
             `Found ${keys.length} unique keys across all ${localesFound.length} locales`,
@@ -139,14 +139,14 @@ function unusedCommand() {
           // files = files.slice(0, 10);
 
           for (let f = 0; f < files.length; f += 1) {
-            let file = files[f]
+            const file = files[f]
 
-            let filePath = path.join(path.resolve('.'), file)
+            const filePath = path.join(path.resolve('.'), file)
 
-            let fileContent = fs.readFileSync(filePath, 'utf8')
+            const fileContent = fs.readFileSync(filePath, 'utf8')
 
             for (let k = 0; k < keys.length; k += 1) {
-              let key = keys[k]
+              const key = keys[k]
 
               if (fileContent.includes(key)) {
                 delete keysObject[key]
@@ -154,7 +154,7 @@ function unusedCommand() {
             }
           }
 
-          let unusedKeys = Object.keys(keysObject)
+          const unusedKeys = Object.keys(keysObject)
           console.log(
             `${
               unusedKeys.length
@@ -167,7 +167,7 @@ function unusedCommand() {
           console.log('Could not find any file matching paths in project')
         }
 
-        let phrases = []
+        const _phrases = []
       } else {
         console.log('Could not detect project type')
       }

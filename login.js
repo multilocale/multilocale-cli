@@ -4,8 +4,7 @@ const postLogin = require('@multilocale/multilocale-js-client/login.js')
 const storeNewSession = require('./session/storeNewSession.js')
 
 module.exports = async function login(email, password) {
-  
-  let answers = await inquirer.prompt([
+  const answers = await inquirer.prompt([
     {
       name: 'email',
       when: !email,
@@ -20,7 +19,7 @@ module.exports = async function login(email, password) {
   email = email || answers.email
   password = password || answers.password
 
-  let { accessToken, refreshToken } = await postLogin(email, password).catch(
+  const { accessToken, refreshToken } = await postLogin(email, password).catch(
     console.error,
   )
   storeNewSession({ accessToken, refreshToken })

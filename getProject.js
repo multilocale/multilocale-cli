@@ -6,17 +6,16 @@ const getConfig = require('./getConfig.js')
 const setConfig = require('./setConfig.js')
 
 module.exports = async function getProject(projectIdOrName) {
-
   let project
 
-  let config = getConfig()
+  const config = getConfig()
 
   if (!projectIdOrName) {
     projectIdOrName = config?.projectId
   }
 
   if (!projectIdOrName) {
-    let projects = await getProjects()
+    const projects = await getProjects()
 
     if (projects.length === 0) {
       throw new Error(
@@ -26,15 +25,14 @@ module.exports = async function getProject(projectIdOrName) {
       projectIdOrName = projects[0]._id
       project = projects[0] // eslint-disable-line prefer-destructuring
     } else {
-      let choices = projects
+      const choices = projects
         .map(project => ({
           name: project.name,
           value: project._id,
         }))
         .sort((a, b) => a.name.localeCompare(b.name))
 
-      
-      let answers = await inquirer.prompt([
+      const answers = await inquirer.prompt([
         {
           type: 'list',
           name: 'projectId',

@@ -1,9 +1,9 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const fs = require('fs-extra')
-const path = require('path')
+const path = require('node:path')
 
 module.exports = function setConfig(config) {
-  let configPath = path.resolve('.', 'multilocale.json')
+  const configPath = path.resolve('.', 'multilocale.json')
 
   let string = ''
 

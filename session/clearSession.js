@@ -4,7 +4,9 @@ const {
   setAccessTokenForMultilocaleClient,
   setAccessTokenCallbackForMultilocaleClient,
 } = require('@multilocale/multilocale-js-client/accessToken.js')
-const { setRefreshTokenForMultilocaleClient } = require('@multilocale/multilocale-js-client/refreshToken.js')
+const {
+  setRefreshTokenForMultilocaleClient,
+} = require('@multilocale/multilocale-js-client/refreshToken.js')
 const localStorage = require('./localStorage.js')
 
 module.exports = function clearSession() {

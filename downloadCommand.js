@@ -6,6 +6,9 @@ const getPhrases = require('@multilocale/multilocale-js-client/getPhrases.js')
 const rehydrateSession = require('./session/rehydrateSession.js')
 const isLoggedInSession = require('./session/isLoggedInSession.js')
 const getAndroidResPath = require('./getAndroidResPath.js')
+const getExtension = require('./getExtension.js')
+const getFormat = require('./getFormat.js')
+const getHeader = require('./getHeader.js')
 const getProject = require('./getProject.js')
 const isAndroid = require('./isAndroid.js')
 const login = require('./login.js')
@@ -22,6 +25,9 @@ function sortObject(o) {
 function downloadCommand() {
   const command = new commander.Command('download')
   command.option('--project [project]', 'project id or name')
+  command.option('--format [format]', 'format of dictionary files')
+  command.option('--extension [extension]', 'extension of dictionary files')
+  command.option('--header [header]', 'header of dictionary files')
   command.action(async options => {
     try {
       console.log('download')
@@ -32,9 +38,18 @@ function downloadCommand() {
         await login()
       }
 
-      const project = await getProject(options?.project)
+      let project = await getProject(options)
+      let format = await getFormat(options)
+      let extension = await getExtension(options)
+      let header = await getHeader(options)
 
       console.log(`Project: ${project.name} (${project._id})`)
+      console.log(`Format: ${format}`)
+      console.log(`Extension: ${extension}`)
+
+      if (header) {
+        console.log(`Header: ${header.replaceAll('\n', '\\n')}`)
+      }
 
       const phrases = await getPhrases({
         project: project.name,
@@ -121,24 +136,43 @@ function downloadCommand() {
         let { locales, paths } = project
 
         if (!paths) {
-          paths = ['translations/%lang%.json']
+          paths = [`translations/%lang%.${extension}`]
         }
 
         paths.forEach(path_ => {
           if (path_.includes('%lang%')) {
             locales.forEach(language => {
-              const phrasesJsonPath = path.resolve(
+              const phrasesDictionaryPath = path.resolve(
                 path_.replace('%lang%', language),
               )
               const key2value = sortObject(language2key2value[language])
 
-              fs.mkdirSync(path.dirname(phrasesJsonPath), { recursive: true })
-              fs.writeFileSync(
-                phrasesJsonPath,
-                `${JSON.stringify(key2value, null, 2)}\n`,
-              )
+              fs.mkdirSync(path.dirname(phrasesDictionaryPath), {
+                recursive: true,
+              })
+
+              let dictionaryFileContent = ''
+
+              if (header) {
+                dictionaryFileContent += `${header}`
+              }
+
+              if (format === 'json') {
+                dictionaryFileContent += JSON.stringify(key2value, null, 2)
+              } else if (format === 'esm') {
+                dictionaryFileContent += `export default ${JSON.stringify(key2value, null, 2)}`
+              } else if (format === 'js') {
+                dictionaryFileContent += `module.exports = ${JSON.stringify(key2value, null, 2)}`
+              } else if (format === 'cjs') {
+                dictionaryFileContent += `module.exports = ${JSON.stringify(key2value, null, 2)}`
+              }
+
+              dictionaryFileContent += '\n'
+
+              fs.writeFileSync(phrasesDictionaryPath, dictionaryFileContent)
+
               console.log(
-                `${language}: ${phrasesJsonPath.replace(
+                `${language}: ${phrasesDictionaryPath.replace(
                   path.resolve('.'),
                   '',
                 )}`,

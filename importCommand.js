@@ -40,7 +40,7 @@ function importCommand() {
         await login()
       }
 
-      const project = await getProject(options?.project)
+      const project = await getProject(options)
       const defaultLocale = project.defaultLocale || 'en'
 
       if (isAndroid()) {

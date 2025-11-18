@@ -23,7 +23,7 @@ function unusedCommand() {
         await login()
       }
 
-      const project = await getProject(options?.project)
+      const project = await getProject(options)
       const _defaultLocale = project.defaultLocale || 'en'
 
       if (isAndroid()) {

@@ -32,7 +32,7 @@ function addLocaleCommand() {
         await login()
       }
 
-      let project = await getProject(options?.project)
+      let project = await getProject(options)
       const defaultLocale = project.defaultLocale || 'en'
 
       if (isAndroid()) {

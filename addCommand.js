@@ -29,7 +29,7 @@ function addCommand() {
       await login()
     }
 
-    const project = await getProject(options?.project)
+    const project = await getProject(options)
     const language = project.defaultLocale || 'en'
 
     const phrases = []

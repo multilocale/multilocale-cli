@@ -5,7 +5,8 @@ const getProjects = require('@multilocale/multilocale-js-client/getProjects.js')
 const getConfig = require('./getConfig.js')
 const setConfig = require('./setConfig.js')
 
-module.exports = async function getProject(projectIdOrName) {
+module.exports = async function getProject(options) {
+  let projectIdOrName = options?.project
   let project
 
   const config = getConfig()

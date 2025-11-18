@@ -1,5 +1,6 @@
 /* Copyright 2013 - 2022 Waiterio LLC */
 const commander = require('commander')
+const { execSync } = require('child_process')
 const fs = require('fs-extra')
 const path = require('node:path')
 const getPhrases = require('@multilocale/multilocale-js-client/getPhrases.js')
@@ -10,6 +11,7 @@ const getExtension = require('./getExtension.js')
 const getFormat = require('./getFormat.js')
 const getHeader = require('./getHeader.js')
 const getProject = require('./getProject.js')
+const getPostScript = require('./getPostScript.js')
 const isAndroid = require('./isAndroid.js')
 const login = require('./login.js')
 
@@ -28,6 +30,10 @@ function downloadCommand() {
   command.option('--format [format]', 'format of dictionary files')
   command.option('--extension [extension]', 'extension of dictionary files')
   command.option('--header [header]', 'header of dictionary files')
+  command.option(
+    '--post-script [post-script]',
+    'post-script to run after downloading dictionary files',
+  )
   command.action(async options => {
     try {
       console.log('download')
@@ -42,13 +48,20 @@ function downloadCommand() {
       let format = await getFormat(options)
       let extension = await getExtension(options)
       let header = await getHeader(options)
+      let postScript = await getPostScript(options)
 
       console.log(`Project: ${project.name} (${project._id})`)
       console.log(`Format: ${format}`)
       console.log(`Extension: ${extension}`)
 
       if (header) {
-        console.log(`Header: ${header.replaceAll('\n', '\\n')}`)
+        console.log(
+          `Header: ${header.replaceAll('\n', '\\n').replaceAll('\r', '\\r').replaceAll('\t', '\\t')}`,
+        )
+      }
+
+      if (postScript) {
+        console.log(`Post-script: ${postScript}`)
       }
 
       const phrases = await getPhrases({
@@ -172,7 +185,7 @@ function downloadCommand() {
               fs.writeFileSync(phrasesDictionaryPath, dictionaryFileContent)
 
               console.log(
-                `${language}: ${phrasesDictionaryPath.replace(
+                `  ${language}: ${phrasesDictionaryPath.replace(
                   path.resolve('.'),
                   '',
                 )}`,
@@ -182,6 +195,12 @@ function downloadCommand() {
             console.log(`Path ${path_} does not include %lang%`)
           }
         })
+
+        if (postScript) {
+          console.log(`Running post-script: ${postScript}`)
+          execSync(postScript, { stdio: 'inherit' })
+          console.log('Post-script completed')
+        }
 
         // let indexJS = ''
         // languages.forEach(language => {
@@ -203,6 +222,8 @@ function downloadCommand() {
         //   path.resolve('./translations/languages),
         //   languagesJS,
         // )
+
+        console.log('Download completed')
       }
     } catch (error) {
       console.log('error', error)

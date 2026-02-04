@@ -1,4 +1,4 @@
-/* Copyright 2013 - 2022 Waiterio LLC */
+/* Copyright 2013 - 2024 Waiterio LLC */
 const commander = require('commander')
 const addPhrases = require('@multilocale/multilocale-js-client/addPhrases.js')
 const translateString = require('@multilocale/multilocale-js-client/translateString.js')

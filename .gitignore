@@ -60,3 +60,6 @@ migrate
 !.vscode/extensions.json
 
 public
+
+# Build output
+dist

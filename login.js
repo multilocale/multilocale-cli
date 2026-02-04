@@ -1,4 +1,4 @@
-/* Copyright 2013 - 2022 Waiterio LLC */
+/* Copyright 2013 - 2024 Waiterio LLC */
 const inquirer = require('inquirer')
 const postLogin = require('@multilocale/multilocale-js-client/login.js')
 const storeNewSession = require('./session/storeNewSession.js')

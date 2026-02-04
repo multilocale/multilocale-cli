@@ -1,4 +1,4 @@
-/* Copyright 2013 - 2022 Waiterio LLC */
+/* Copyright 2013 - 2024 Waiterio LLC */
 const fs = require('fs-extra')
 const path = require('node:path')
 const commander = require('commander')

@@ -1,4 +1,4 @@
-/* Copyright 2013 - 2022 Waiterio LLC */
+/* Copyright 2013 - 2024 Waiterio LLC */
 const fs = require('fs-extra')
 const path = require('node:path')
 const commander = require('commander')
@@ -280,9 +280,7 @@ function importCommand() {
           }
 
           const phrases = Object.keys(key2locale2phrase).reduce(
-            (phrases, key) => {
-              return phrases.concat(Object.values(key2locale2phrase[key]))
-            },
+            (phrases, key) => phrases.concat(Object.values(key2locale2phrase[key])),
             [],
           )
 

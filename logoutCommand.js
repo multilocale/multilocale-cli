@@ -1,4 +1,4 @@
-/* Copyright 2013 - 2022 Waiterio LLC */
+/* Copyright 2013 - 2024 Waiterio LLC */
 const commander = require('commander')
 const clearSession = require('./session/clearSession.js')
 
